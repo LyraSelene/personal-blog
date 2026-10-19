@@ -1,0 +1,41 @@
+/* Central palette, typefaces and layer scale. Change these tokens to restyle the site. */
+:root {
+  --font-display: 'UnifrakturCook', Georgia, serif;
+  --font-latin: 'Cormorant Garamond', Georgia, serif;
+  --font-heading: 'Songti SC', 'STSong', 'Noto Serif CJK SC', 'SimSun', serif;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-code: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+  --hero-bg: #590d2b;
+  --hero-text: #faf2e9;
+  --hero-muted: #e4c8d0;
+  --hero-gold: #d5bd87;
+  --bg: #faf6f2;
+  --surface: #f2e9e7;
+  --text: #48132a;
+  --muted: #74525f;
+  --accent: #825e29;
+  --line: #d8c3c8;
+  --code-bg: #fffaf6;
+  --mark: #ead9b9;
+  --header-layer: 20;
+  --focus-layer: 30;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #390b20;
+  --surface: #450d26;
+  --text: #faf1e9;
+  --muted: #d6b6c1;
+  --accent: #d5bd87;
+  --line: #7d4059;
+  --code-bg: #240f1b;
+  --mark: #70522a;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #390b20; --surface: #450d26; --text: #faf1e9;
+    --muted: #d6b6c1; --accent: #d5bd87; --line: #7d4059;
+    --code-bg: #240f1b; --mark: #70522a; color-scheme: dark;
+  }
+}

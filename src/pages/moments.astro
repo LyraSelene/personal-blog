@@ -1,0 +1,9 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/paths';
+import { site } from '../config/site';
+const entries = (await getCollection('moments', ({ data }) => !data.draft)).sort((a,b) => b.data.date.valueOf()-a.data.date.valueOf());
+const moments = await Promise.all(entries.map(async entry=>({entry,...await render(entry)})));
+---
+<BaseLayout portal title="说说"><div class="portal-shell collection-shell"><header class="collection-heading"><p class="eyebrow">LITTLE MOMENTS</p><h1>说说</h1><p>长文之外，留几句当下的想法。</p></header>{moments.length ? <div class="moments-grid">{moments.map(({entry,Content}) => <article class="panel moment-item"><header><span class="moment-avatar" aria-hidden="true">L</span><div><h2>{site.author}</h2><time datetime={entry.data.date.toISOString()}>{entry.data.date.toLocaleString('zh-CN', {timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}</time></div></header><div class="prose"><Content /></div>{entry.data.photos.length>0 && <div class="moment-photos">{entry.data.photos.map((src,i)=><a href={withBase(src)} target="_blank" rel="noopener"><img src={withBase(src)} alt={`这条记录的第 ${i+1} 张图片`} width="600" height="600" loading="lazy" /></a>)}</div>}</article>)}</div> : <section class="panel collection-empty"><span aria-hidden="true">“</span><h2>一些想法，还在路上。</h2><p>暂时还没有公开记录。</p></section>}</div></BaseLayout>

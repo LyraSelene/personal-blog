@@ -1,0 +1,12 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/paths';
+export async function getStaticPaths() { return (await getCollection('albums', ({data}) => !data.draft)).map(album => ({params:{id:album.id},props:{album}})); }
+const { album } = Astro.props;
+const { Content } = await render(album);
+---
+<BaseLayout portal title={album.data.title} description={album.data.description} image={album.data.cover}><div class="portal-shell collection-shell"><a class="reading-back" href={withBase('/albums/')}>← 全部相册</a><header class="collection-heading"><h1>{album.data.title}</h1><p>{album.data.description}</p></header><div class="photo-gallery">{album.data.photos.map((photo,i) => <figure class="panel"><button class="photo-open" data-src={withBase(photo.src)} data-alt={photo.alt} aria-label={`放大查看：${photo.alt}`}><img src={withBase(photo.src)} alt={photo.alt} width="1200" height="900" loading={i ? 'lazy' : 'eager'} /></button>{photo.caption && <figcaption>{photo.caption}</figcaption>}</figure>)}</div><div class="prose album-description"><Content /></div></div><dialog id="photo-dialog" aria-label="照片大图"><button class="photo-close" aria-label="关闭照片">关闭 ×</button><img alt="" /><p></p></dialog><script>
+const dialog = document.querySelector<HTMLDialogElement>('#photo-dialog');
+if (dialog) { const close = () => dialog.close(); dialog.querySelector('button')?.addEventListener('click', close); document.querySelectorAll<HTMLButtonElement>('.photo-open').forEach(button => button.addEventListener('click', () => { const img = dialog.querySelector('img')!; img.src=button.dataset.src!; img.alt=button.dataset.alt!; dialog.querySelector('p')!.textContent=img.alt; dialog.showModal(); })); dialog.addEventListener('click',event=>{if(event.target===dialog)close();}); }
+</script></BaseLayout>

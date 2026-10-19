@@ -1,0 +1,7 @@
+---
+import type { MarkdownHeading } from 'astro';
+interface Props { headings: MarkdownHeading[] }
+const { headings } = Astro.props;
+const items = headings.filter(h => h.depth > 1 && h.depth < 4);
+---
+{items.length > 0 && <aside class="toc" data-pagefind-ignore><details open><summary>本文目录</summary><nav aria-label="本文目录"><ol>{items.map(h => <li class:list={{ 'toc-nested': h.depth === 3 }}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol></nav></details></aside>}

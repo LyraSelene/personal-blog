@@ -1,0 +1,19 @@
+---
+import { withBase } from '../lib/paths';
+import { site } from '../config/site';
+import { visuals } from '../config/visuals';
+const { hero = false } = Astro.props;
+---
+<header class:list={['site-header', { 'hero-header': hero }]} data-pagefind-ignore>
+  <a class="wordmark" href={withBase('/')} aria-label={`${site.name}，首页`}>
+    {visuals.logo ? <img src={withBase(visuals.logo)} alt={site.name} width="120" height="40" /> : <span class="brand-word">Lyra<span class="wordmark-sub">{site.author}</span></span>}
+  </a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-navigation" hidden>菜单 <span aria-hidden="true">＋</span></button>
+  <nav id="main-navigation" aria-label="主导航">
+    {site.navigation.map(item => <a href={withBase(item.href)} aria-current={(item.href === '/' ? Astro.url.pathname === withBase('/') : Astro.url.pathname.startsWith(withBase(item.href))) ? 'page' : undefined}>{item.label}</a>)}
+    <button class="theme-toggle" type="button" aria-label="切换主题，当前跟随系统" hidden>系统</button>
+  </nav>
+</header>
+<script>
+  import '../scripts/navigation';
+</script>

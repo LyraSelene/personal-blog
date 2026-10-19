@@ -1,0 +1,9 @@
+---
+import { withBase } from '../lib/paths';
+import { site } from '../config/site';
+---
+<footer class="site-footer wrap" data-pagefind-ignore>
+  <a href={withBase('/')} class="footer-name">Lyra<span>学习、记录、实践。</span></a>
+  <div class="footer-links">{site.socials.map(link => <a href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}<a href={withBase('/about/')}>关于本站 ↗</a></div>
+  <small>© {new Date().getFullYear()} {site.author}<br />Built with Astro. Written with curiosity.</small>
+</footer>

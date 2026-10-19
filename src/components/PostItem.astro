@@ -1,0 +1,14 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { dateLabel, postHref, taxonomyHref } from '../lib/content';
+import { withBase } from '../lib/paths';
+interface Props { post: CollectionEntry<'posts'>; featured?: boolean }
+const { post, featured = false } = Astro.props;
+---
+<article class:list={['post-item', { 'post-featured': featured }]}>
+  {post.data.cover && <a class="post-cover" href={postHref(post)} tabindex="-1" aria-hidden="true"><img src={withBase(post.data.cover)} alt="" width="1000" height="600" loading="lazy" /></a>}
+  <div class="post-meta"><time datetime={post.data.pubDate.toISOString()}>{dateLabel(post.data.pubDate)}</time><a href={taxonomyHref('category', post.data.category)}>{post.data.category}</a>{post.data.example && <span>示例文章</span>}</div>
+  <h3><a href={postHref(post)}>{post.data.title}<span aria-hidden="true">↗</span></a></h3>
+  <p>{post.data.description}</p>
+  <div class="tags">{post.data.tags.map(tag => <a href={taxonomyHref('tag', tag)}>#{tag}</a>)}</div>
+</article>

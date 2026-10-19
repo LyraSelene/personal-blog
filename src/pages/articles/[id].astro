@@ -1,0 +1,22 @@
+---
+import { withBase } from '../../lib/paths';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import { publishedPosts, dateLabel, taxonomyHref, postHref } from '../../lib/content';
+export async function getStaticPaths() { const posts = await publishedPosts(); return posts.map((post, i) => ({ params: { id: post.id }, props: { post, newer: posts[i - 1], older: posts[i + 1] } })); }
+const { post, newer, older } = Astro.props;
+const { Content, headings } = await render(post);
+---
+<BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover} searchable article pubDate={post.data.pubDate} updatedDate={post.data.updatedDate}>
+  <div class="wrap reading-page">
+    <div class="reading-back" data-pagefind-ignore><a href={withBase('/articles/')}>← 全部文章</a></div>
+    <article data-pagefind-body>
+      <header class="article-header"><div class="post-meta"><a href={taxonomyHref('category', post.data.category)}>{post.data.category}</a>{post.data.example && <span>示例文章</span>}</div><h1 data-pagefind-meta="title">{post.data.title}</h1><p class="article-description">{post.data.description}</p><div class="post-meta"><span>发布于 <time datetime={post.data.pubDate.toISOString()}>{dateLabel(post.data.pubDate)}</time></span>{post.data.updatedDate && <span>更新于 <time datetime={post.data.updatedDate.toISOString()}>{dateLabel(post.data.updatedDate)}</time></span>}</div><div class="tags" data-pagefind-ignore>{post.data.tags.map(tag => <a href={taxonomyHref('tag', tag)}>#{tag}</a>)}</div></header>
+      {post.data.cover && <img class="article-cover" src={withBase(post.data.cover)} width="1440" height="810" alt={`${post.data.title}封面`} />}
+      <div class="reading-grid"><div class="prose min-w-0"><Content /></div><TableOfContents headings={headings} /></div>
+    </article>
+    <nav class="post-navigation" aria-label="相邻文章" data-pagefind-ignore><div>{older && <a href={postHref(older)}><span>上一篇</span><strong>← {older.data.title}</strong></a>}</div><div>{newer && <a href={postHref(newer)}><span>下一篇</span><strong>{newer.data.title} →</strong></a>}</div></nav>
+  </div>
+  <script>import '../../scripts/article';</script>
+</BaseLayout>

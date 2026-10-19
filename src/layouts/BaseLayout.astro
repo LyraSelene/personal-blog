@@ -1,0 +1,49 @@
+---
+import { withBase } from '../lib/paths';
+import '@fontsource/unifrakturcook/latin-700.css';
+import '@fontsource/cormorant-garamond/latin-400.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config/site';
+import { visuals } from '../config/visuals';
+interface Props { title?: string; description?: string; hero?: boolean; portal?: boolean; home?: boolean; searchable?: boolean; image?: string; article?: boolean; pubDate?: Date; updatedDate?: Date; noindex?: boolean }
+const { title, description = site.description, hero = false, searchable = false, image = visuals.ogImage, article = false, pubDate, updatedDate, noindex = false } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, site.url);
+---
+<!doctype html>
+<html lang="zh-CN" data-searchable={searchable || undefined}>
+  <head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#590d2b" />
+    <title>{fullTitle}</title><meta name="description" content={description} />
+    <meta name="author" content={site.author} /><link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta property="og:title" content={fullTitle} /><meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? 'article' : 'website'} /><meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} /><meta property="og:locale" content="zh_CN" />
+    <meta property="og:image" content={new URL(withBase(image), site.url)} /><meta name="twitter:card" content="summary_large_image" />
+    {pubDate && <meta property="article:published_time" content={pubDate.toISOString()} />}
+    {updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+    {hero && visuals.character && <link rel="preload" as="image" href={withBase(visuals.character)} />}
+    <script is:inline>
+      (() => {
+        let preference = 'system';
+        try { preference = localStorage.getItem('lyra-theme') || 'system'; } catch {}
+        const dark = preference === 'dark' || (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.preference = preference;
+      })();
+    </script>
+  </head>
+  <body class:list={{ 'portal-site': Astro.props.portal, 'home-site': Astro.props.home, 'stage-site': !!visuals.background, 'reading-site': searchable }} data-pagefind-ignore={!searchable ? 'all' : undefined}>
+    {visuals.background && <div class="stage-background" aria-hidden="true" data-pagefind-ignore><picture>{visuals.backgroundMobile && <source media="(max-width: 767px)" srcset={withBase(visuals.backgroundMobile)} />}<img src={withBase(visuals.background)} alt="" width="1920" height="1075" fetchpriority="high" /></picture></div>}
+    <a href="#main" class="skip-link">跳到主要内容</a>
+    <Header hero={hero} />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

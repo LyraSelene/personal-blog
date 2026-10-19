@@ -1,0 +1,10 @@
+---
+import { withBase } from '../../lib/paths';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publishedProjects } from '../../lib/content';
+export async function getStaticPaths() { return (await publishedProjects()).map(project => ({ params: { id: project.id }, props: { project } })); }
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+<BaseLayout title={project.data.name} description={project.data.description} image={project.data.cover}><div class="wrap reading-page"><a class="reading-back" href={withBase('/projects/')}>← 全部项目</a><header class="article-header"><p class="eyebrow">PROJECT {project.data.example ? '/ 示例项目' : ''}</p><h1>{project.data.name}</h1><p class="article-description">{project.data.description}</p><div class="tags">{project.data.stack.map(tech => <span>{tech}</span>)}</div><div class="project-links">{project.data.source && <a href={project.data.source} target="_blank" rel="noopener noreferrer">查看源码 ↗</a>}{project.data.demo && <a href={project.data.demo} target="_blank" rel="noopener noreferrer">在线演示 ↗</a>}</div></header>{project.data.cover && <img class="article-cover" src={withBase(project.data.cover)} width="1440" height="810" alt={`${project.data.name}封面`} loading="lazy" />}<div class="prose project-prose"><Content /></div></div><script>import '../../scripts/article';</script></BaseLayout>

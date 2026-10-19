@@ -1,0 +1,22 @@
+.home-landing-shell { padding-top: 52px; padding-bottom: 90px; }
+.home-landing { display: grid; grid-template-columns: 1fr 1.32fr; gap: 24px; align-items: stretch; }
+.home-profile { min-height: 440px; padding: 52px 48px; display: flex; flex-direction: column; justify-content: center; }
+.home-profile .eyebrow { margin-bottom: 18px; font: 11px/1.5 var(--font-body); letter-spacing: .16em; }
+.home-profile h1 { font-size: clamp(32px, 4vw, 52px); line-height: 1.3; margin-bottom: 12px; letter-spacing: .03em; }
+.home-author { font: 20px/1.5 var(--font-latin); color: var(--accent); margin-bottom: 20px; }
+.home-description { color: var(--muted); font-size: 15px; line-height: 2; margin-bottom: 30px; }
+.home-actions { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
+.home-actions a { border: 1px solid var(--line); border-radius: 12px; padding: 9px 16px; }
+.home-actions a:first-child { background: var(--hero-bg); color: var(--hero-text); border-color: var(--hero-bg); }
+.home-character { min-height: 440px; position: relative; overflow: hidden; padding: 8px; background: var(--hero-bg); }
+.home-character img { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); object-fit: cover; object-position: 50% 38%; border-radius: 22px; }
+.home-character .art-signature { left: 8px; right: 8px; bottom: 8px; border-radius: 0 0 22px 22px; background: rgb(57 17 28 / .82); }
+.home-quiet { margin: 26px 0 0; text-align: center; color: var(--muted); font-size: 13px; }
+.home-site.stage-site.portal-site .site-footer { margin-top: 0; }
+@media (max-width: 767px) {
+  .home-landing-shell { padding-top: 24px; padding-bottom: 45px; }
+  .home-landing { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .home-profile { min-height: 310px; padding: 34px 28px; }
+  .home-profile h1 { font-size: 34px; }
+  .home-character { min-height: 260px; }
+}

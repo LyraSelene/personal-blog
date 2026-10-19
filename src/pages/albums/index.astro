@@ -1,0 +1,9 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/paths';
+const albums = (await getCollection('albums', ({ data }) => !data.draft)).sort((a,b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<BaseLayout portal title="相册"><div class="portal-shell collection-shell"><header class="collection-heading"><p class="eyebrow">LIGHT & MEMORY</p><h1>相册</h1><p>收藏光影，也收藏日常的片刻。</p></header>
+{albums.length ? <div class="album-grid">{albums.map(album => { const cover = album.data.cover || album.data.photos[0]?.src; return <article class="album-item"><a href={withBase(`/albums/${album.id}/`)} class="photo-stack">{cover ? <img src={withBase(cover)} width="800" height="1000" alt={album.data.title} loading="lazy" /> : <span class="album-placeholder" aria-hidden="true">L</span>}<span class="album-count">{album.data.photos.length} 张照片</span></a><h2><a href={withBase(`/albums/${album.id}/`)}>{album.data.title}</a></h2><p>{album.data.description}</p><time datetime={album.data.date.toISOString()}>{album.data.date.toISOString().slice(0,10)}</time></article>; })}</div> : <section class="panel collection-empty"><span aria-hidden="true">▧</span><h2>镜头之外，还有许多留白。</h2><p>暂时还没有公开相册。</p></section>}
+</div></BaseLayout>

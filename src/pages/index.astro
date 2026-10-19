@@ -1,0 +1,27 @@
+---
+import { withBase } from '../lib/paths';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+import { visuals } from '../config/visuals';
+---
+<BaseLayout portal home>
+  <div class="portal-shell home-landing-shell">
+    <section class="home-landing" aria-labelledby="hero-title">
+      <div class="home-profile panel">
+        <p class="eyebrow">PERSONAL NOTEBOOK</p>
+        <h1 id="hero-title">{site.name}</h1>
+        <p class="home-author">{site.author}</p>
+        <p class="home-description">{site.description}</p>
+        <nav class="home-actions" aria-label="快速入口">
+          <a href={withBase('/articles/')}>文章 <span aria-hidden="true">↗</span></a>
+          <a href={withBase('/projects/')}>项目 <span aria-hidden="true">↗</span></a>
+          <a href={withBase('/about/')}>关于 <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+      <div class="home-character panel">
+        {visuals.character ? <img src={withBase(visuals.character)} alt={visuals.characterAlt} width="1440" height="740" fetchpriority="high" /> : <span class="art-word" aria-hidden="true">Lyra</span>}
+        <span class="art-signature" aria-hidden="true">{site.author}</span>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,38 @@
+{
+  "name": "unfinished-blog",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "admin": "node scripts/admin-server.mjs",
+    "build": "astro check && astro build && node scripts/prefix-content-paths.mjs && node scripts/search-index.mjs",
+    "preview": "astro preview --host 127.0.0.1",
+    "check": "astro check",
+    "test": "playwright test",
+    "predeploy": "node scripts/predeploy.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^8.1.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/cormorant-garamond": "^5.2.0",
+    "@fontsource/unifrakturcook": "^5.2.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "astro": "^7.4.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.56.0",
+    "lighthouse": "^13.5.0",
+    "marked": "^17.0.6",
+    "pagefind": "^1.4.0",
+    "sanitize-html": "^2.18.1",
+    "typescript": "^5.9.0",
+    "yaml": "^2.9.1"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  }
+}

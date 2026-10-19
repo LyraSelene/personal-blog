@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/paths';
+import { visuals } from '../config/visuals';
+import { site } from '../config/site';
+---
+<BaseLayout portal title="关于"><div class="portal-shell collection-shell"><article class="panel about-profile">{visuals.character && <img class="about-cover" src={withBase(visuals.character)} width="1440" height="740" alt="" />}<div class="about-profile-body"><span class="about-avatar" aria-hidden="true">L</span><header><p class="eyebrow">HELLO, I'M {site.author.toUpperCase()}</p><h1>关于我</h1></header><div class="prose"><h2>你好，我是 {site.author}。</h2><p>{site.description}</p><p class="about-text">{site.about}</p>{site.socials.length > 0 && <><h2>找到我</h2><ul>{site.socials.map(link => <li><a href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a></li>)}</ul></>}</div></div></article></div></BaseLayout>

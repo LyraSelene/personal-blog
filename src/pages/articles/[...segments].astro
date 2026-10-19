@@ -1,0 +1,38 @@
+---
+import { withBase } from '../../lib/paths';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuickSearch from '../../components/QuickSearch.astro';
+import PostItem from '../../components/PostItem.astro';
+import { archivePaths, publishedPosts, taxonomyHref } from '../../lib/content';
+export const getStaticPaths = archivePaths;
+const { posts, label, kind, value, page, total, count, base } = Astro.props;
+const all = await publishedPosts();
+const categories = [...new Set(all.map(p => p.data.category))];
+const tags = [...new Set(all.flatMap(p => p.data.tags))];
+const pageHref = (n: number) => n === 1 ? base : `${base}${n}/`;
+---
+<BaseLayout portal title={`${kind === 'all' ? '文章' : label}${page > 1 ? ` / 第 ${page} 页` : ''}`} description="学习笔记、技术文章与实践记录。按分类或标签查找文章。">
+  <div class="portal-shell archive-portal"><QuickSearch id="archive-search" />
+    <header class="archive-intro"><p class="eyebrow">THE NOTEBOOK</p><h1>文章</h1><p>记录理解的过程，也记录尚未解决的问题。</p></header>
+    {all.length > 0 && <aside class="top-filters panel" aria-label="文章筛选"><nav class="category-chips" aria-label="分类"><a href={withBase('/articles/')} aria-current={kind === 'all' ? 'page' : undefined}>全部文章 <span>{all.length}</span></a>{categories.map(category => <a href={taxonomyHref('category', category)} aria-current={kind === 'category' && value === category ? 'page' : undefined}>{category}<span>{all.filter(p => p.data.category === category).length}</span></a>)}</nav><div class="filter-bottom"><nav class="tags" aria-label="标签">{tags.map(tag => <a href={taxonomyHref('tag', tag)} aria-current={kind === 'tag' && value === tag ? 'page' : undefined}>#{tag}</a>)}</nav><div class="view-switch" role="group" aria-label="文章显示方式" hidden><button type="button" data-view="grid" aria-pressed="true">网格</button><button type="button" data-view="list" aria-pressed="false">列表</button></div></div></aside>}
+    <section aria-label={label} class="archive-results">{posts.length > 0 && <div class="results-heading"><h2>{label}</h2><span>{count} 篇文章</span></div>}<div class="archive-cards" data-view="grid">{posts.map(post => <PostItem post={post} />)}</div>{posts.length === 0 && <div class="panel collection-empty"><span aria-hidden="true">Aa</span><h2>第一篇记录，留待落笔。</h2><p>暂时还没有发布文章。</p></div>}
+      {total > 1 && <nav class="pagination" aria-label="文章分页">{page > 1 ? <a href={pageHref(page - 1)}>← 上一页</a> : <span>已是第一页</span>}<span>第 {page} / {total} 页</span>{page < total ? <a href={pageHref(page + 1)}>下一页 →</a> : <span>已是最后一页</span>}</nav>}
+    </section>
+  </div>
+  <script>
+    const controls = document.querySelector<HTMLElement>('.view-switch');
+    const cards = document.querySelector<HTMLElement>('.archive-cards');
+    if (controls && cards) {
+      controls.hidden = false;
+      const apply = (view: string) => {
+        cards.dataset.view = view;
+        controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
+      };
+      try { apply(localStorage.getItem('lyra-article-view') === 'list' ? 'list' : 'grid'); } catch {}
+      controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
+        const view = button.dataset.view || 'grid'; apply(view);
+        try { localStorage.setItem('lyra-article-view', view); } catch {}
+      }));
+    }
+  </script>
+</BaseLayout>

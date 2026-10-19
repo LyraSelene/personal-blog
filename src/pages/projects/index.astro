@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectItem from '../../components/ProjectItem.astro';
+import { publishedProjects } from '../../lib/content';
+const projects = await publishedProjects();
+---
+<BaseLayout portal title="项目" description="通过项目实践理解技术，记录设计取舍与复现方法。"><div class="portal-shell collection-shell"><header class="collection-heading"><p class="eyebrow">LEARNING BY BUILDING</p><h1>项目实践</h1><p>从一个问题开始，到一个可运行的答案。</p></header>{projects.length ? <div class="project-grid project-list">{projects.map(project => <ProjectItem project={project} />)}</div> : <section class="panel collection-empty"><span aria-hidden="true">{ '{ }' }</span><h2>下一次实践，从这里开始。</h2><p>暂时还没有公开项目。</p></section>}</div></BaseLayout>

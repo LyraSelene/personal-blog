@@ -1,0 +1,101 @@
+/* The user's theatre artwork sits on its own fixed layer. All text stays fully opaque. */
+.stage-site {
+  --text: #401c21;
+  --muted: #644849;
+  --accent: #775020;
+  --line: #b8a090;
+  --stage-panel: rgb(255 248 235 / .87);
+  --stage-header: rgb(255 248 235 / .9);
+  --stage-overlay: rgb(247 236 216 / .19);
+  --stage-border: rgb(151 114 74 / .45);
+  --stage-shadow: 0 10px 32px rgb(24 10 9 / .14);
+  --stage-highlight: rgb(255 252 241 / .88);
+  isolation: isolate;
+  background: #2d1c1d;
+}
+[data-theme='dark'] .stage-site {
+  --text: #fff5e5;
+  --muted: #e0cbbb;
+  --accent: #e2c18a;
+  --line: #947666;
+  --stage-panel: rgb(39 20 25 / .84);
+  --stage-header: rgb(35 17 22 / .9);
+  --stage-overlay: rgb(18 9 13 / .32);
+  --stage-border: rgb(215 182 130 / .34);
+  --stage-shadow: 0 10px 32px rgb(13 6 8 / .2);
+  --stage-highlight: rgb(249 224 182 / .12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .stage-site {
+    --text: #fff5e5; --muted: #e0cbbb; --accent: #e2c18a; --line: #947666;
+    --stage-panel: rgb(39 20 25 / .84); --stage-header: rgb(35 17 22 / .9);
+    --stage-overlay: rgb(18 9 13 / .32); --stage-border: rgb(215 182 130 / .34);
+    --stage-highlight: rgb(249 224 182 / .12);
+  }
+}
+.stage-background { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #2d1c1d; }
+.stage-background picture, .stage-background img { width: 100%; height: 100%; display: block; }
+.stage-background img { object-fit: cover; object-position: 50% 42%; filter: blur(2px); transform: scale(1.015); }
+.stage-background::after { content: ''; position: absolute; inset: 0; background: var(--stage-overlay); }
+.stage-site .site-header { background: var(--stage-header); border-bottom-color: var(--stage-border); backdrop-filter: blur(14px); }
+.stage-site .wordmark-sub { border-color: var(--stage-border); }
+.stage-site .panel,
+.stage-site .quick-search,
+.stage-site .archive-cards .post-item { background: var(--stage-panel); border-color: var(--stage-border); box-shadow: inset 0 1px var(--stage-highlight), var(--stage-shadow); backdrop-filter: blur(14px); border-radius: 12px; }
+.stage-site .portal-shell { padding-top: 30px; }
+.stage-site .profile-panel { padding: 30px; }
+.stage-site .profile-monogram { background: #5a1725; border: 1px solid #b28a55; border-radius: 8px; }
+.stage-site .profile-heading h1 { letter-spacing: .035em; }
+.stage-site .eyebrow { letter-spacing: .17em; }
+.stage-site .profile-art { background: #491822; }
+.stage-site .profile-art img { filter: saturate(.86); }
+.stage-site .art-signature { background: rgb(57 17 28 / .92); border-top: 1px solid #b28a55; }
+.stage-site .profile-actions > a:not(.profile-about) { border-color: var(--stage-border); background: rgb(127 84 43 / .06); }
+.stage-site .profile-actions > a:first-child { color: #fff5e5; background: #672636; border-color: #94594b; }
+.stage-site .profile-actions > a:first-child:hover { background: #793343; }
+.stage-site .notebook-strip { background: rgb(58 19 29 / .91); border: 1px solid rgb(215 182 130 / .4); backdrop-filter: blur(10px); padding-block: 13px; }
+.stage-site .lead-note { background: rgb(79 25 38 / .9); color: #fff5e5; --muted: #ead5c4; --accent: #e2c18a; }
+.stage-site .lead-note p:not(.eyebrow) { color: #ead5c4; }
+.stage-site .lead-glyph { color: #e2c18a; }
+.stage-site .lead-note .post-meta { color: #ead5c4; }
+.stage-site .feature-project .project-bracket { font-size: 32px; top: 24px; }
+.stage-site .portal-recent > .section-heading,
+.stage-site .portal-about,
+.stage-site .archive-intro,
+.stage-site .archive-portal .results-heading { background: var(--stage-header); border: 1px solid var(--stage-border); border-radius: 10px; padding: 20px 24px; backdrop-filter: blur(12px); }
+.stage-site .portal-recent { margin-top: 26px; }
+.stage-site .portal-recent .section-heading { margin-bottom: 14px; }
+.stage-site .portal-about { margin-top: 20px; font-size: 12px; }
+.stage-site .site-footer { background: var(--stage-header); border: 1px solid var(--stage-border); border-radius: 12px; padding: 25px; margin-bottom: 24px; backdrop-filter: blur(14px); }
+.stage-site .archive-intro { margin-bottom: 20px; }
+.stage-site .archive-portal .results-heading { padding-block: 14px; }
+.stage-site .category-chips a { background: rgb(126 84 58 / .09); border-color: var(--stage-border); }
+.stage-site .category-chips [aria-current='page'],
+.stage-site .view-switch [aria-pressed='true'] { color: #fff5e5; background: #672636; border-color: #94594b; }
+.stage-site .archive-portal .pagination { background: var(--stage-header); border: 1px solid var(--stage-border); border-radius: 8px; padding: 14px 20px; backdrop-filter: blur(12px); }
+.stage-site:not(.portal-site) #main > .wrap { margin-top: 32px; margin-bottom: 32px; padding-inline: 44px; background: var(--bg); border: 1px solid var(--stage-border); border-radius: 12px; }
+.stage-site:not(.portal-site) .page-intro { padding-top: 55px; }
+.stage-site:not(.portal-site) .site-footer { margin-top: 25px; }
+.stage-site:not(.portal-site) .prose { color: var(--text); }
+@media (max-width: 767px) {
+  .stage-background img { object-position: 49% 50%; filter: blur(1px); }
+  .stage-site .portal-shell { padding-top: 22px; }
+  .stage-site .profile-panel { padding: 23px; }
+  .stage-site .portal-recent > .section-heading { padding: 18px; }
+  .stage-site .portal-about { padding: 18px; }
+  .stage-site .site-footer { padding: 22px; }
+  .stage-site .has-menu-js #main-navigation.is-open,
+  .has-menu-js .stage-site #main-navigation.is-open { background: var(--stage-header); backdrop-filter: blur(16px); }
+  .stage-site:not(.portal-site) #main > .wrap { width: calc(100% - 24px); margin-block: 18px; padding-inline: 20px; }
+  .stage-site .archive-portal .pagination { padding-inline: 13px; }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .stage-site { --stage-panel: #fff8eb; --stage-header: #fff8eb; }
+  [data-theme='dark'] .stage-site { --stage-panel: #271419; --stage-header: #271419; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .stage-site { --stage-panel: #fff8eb; --stage-header: #fff8eb; }
+  [data-theme='dark'] .stage-site { --stage-panel: #271419; --stage-header: #271419; }
+  .stage-site .panel, .stage-site .site-header, .stage-site .quick-search, .stage-site .site-footer { backdrop-filter: none; }
+  .stage-site .lead-note { background: #4f1926; }
+}

@@ -1,0 +1,10 @@
+---
+import { withBase } from '../lib/paths';
+const { id = 'quick-search' } = Astro.props;
+---
+<form class="quick-search" role="search" action={withBase('/search/')}>
+  <label class="sr-only" for={id}>搜索文章正文</label>
+  <span aria-hidden="true">⌕</span>
+  <input id={id} type="search" name="q" placeholder="搜索笔记、技术与想法…" required />
+  <button type="submit" aria-label="提交搜索">↵</button>
+</form>

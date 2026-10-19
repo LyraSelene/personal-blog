@@ -1,0 +1,5 @@
+---
+import { withBase } from '../lib/paths';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="搜索" description="搜索已发布的学习笔记和技术文章正文。"><div class="wrap search-page"><header class="page-intro"><p class="eyebrow">FIND A THOUGHT</p><h1>搜索<span class="accent">.</span></h1><p>从标题到正文，找回某个想法。</p></header><form id="search-form" role="search"><label for="search-input">搜索文章</label><div class="search-field"><input id="search-input" name="q" type="search" placeholder="试试搜索：静态生成、闭包、缓存…" autocomplete="off" /><button type="submit">搜索 ↗</button></div></form><p id="search-status" role="status" aria-live="polite">输入关键词，搜索已发布文章的完整正文。</p><div id="search-results" class="search-results"></div><noscript><p>全文搜索需要 JavaScript。你仍然可以<a href={withBase('/articles/')}>按分类和标签浏览文章</a>。</p></noscript></div><script>import '../scripts/search';</script></BaseLayout>

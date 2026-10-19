@@ -1,0 +1,9 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/paths';
+const tracks = await getCollection('music', ({ data }) => !data.draft);
+---
+<BaseLayout portal title="音乐"><div class="portal-shell collection-shell"><header class="collection-heading"><p class="eyebrow">LISTENING ROOM</p><h1>音乐</h1><p>留一些旋律，陪伴写作与日常。</p></header>
+{tracks.length ? <div class="music-grid">{tracks.map(track => <article class="panel music-card"><div class="music-record">{track.data.cover ? <img src={withBase(track.data.cover)} width="400" height="400" alt={`${track.data.title}封面`} loading="lazy" /> : <span aria-hidden="true">L</span>}</div><h2>{track.data.title}</h2><p>{track.data.artist}</p><audio controls preload="none" src={withBase(track.data.audio)} aria-label={`播放 ${track.data.title}`}>你的浏览器不支持音频播放。</audio>{track.data.lyrics && <details class="lyrics"><summary>歌词</summary><pre>{track.data.lyrics}</pre></details>}</article>)}</div> : <section class="panel collection-empty"><span aria-hidden="true">♪</span><h2>音乐收藏，留待下一首。</h2><p>暂时还没有添加歌曲。</p></section>}
+</div><script>document.querySelectorAll('audio').forEach(player => player.addEventListener('play', () => document.querySelectorAll('audio').forEach(other => { if (other !== player) other.pause(); })));</script></BaseLayout>

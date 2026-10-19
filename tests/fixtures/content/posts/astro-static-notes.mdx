@@ -1,0 +1,66 @@
+---
+title: '从内容到页面：理解 Astro 的静态生成'
+description: '从一次构建开始，梳理内容集合、静态路由与浏览器 JavaScript 之间的关系。'
+pubDate: 2026-10-16
+updatedDate: 2026-10-18
+category: '前端开发'
+tags: ['Astro', '静态生成']
+draft: false
+example: true
+---
+import { withBase } from '../../../../src/lib/paths';
+
+import Callout from '../../../../src/components/Callout.astro';
+
+<Callout title="示例文章">本文用于展示文章格式和 MDX 组件，可删除或替换，不代表作者的真实项目经历。</Callout>
+
+## 静态生成发生在什么时候
+
+访问静态页面时，浏览器收到的是构建阶段已经生成的 HTML。服务器不需要为每次访问重新读取 Markdown、执行组件或查询数据库。
+
+这让个人博客可以保持很小的运行成本。文章的更新通过修改文件、提交代码和重新构建完成。
+
+> 内容可以很丰富，浏览器里的运行时代码仍然可以很少。
+
+## 把文章看作结构化内容
+
+Content Collections 将文章的元数据与正文组织在一起。schema 在构建时检查日期、标题和标签，帮助提早发现内容错误。
+
+```ts
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('posts', ({ data }) => !data.draft);
+const latest = articles.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+console.log(latest.map(article => ({ title: article.data.title, published: article.data.pubDate.toISOString() })));
+```
+
+### 明确草稿边界
+
+只在列表中隐藏草稿还不够。详情页路径和搜索索引都应从相同的已发布集合派生。本例使用 `publishedPosts()` 作为统一入口。
+
+## 哪些交互需要 JavaScript
+
+| 能力 | 构建阶段 | 浏览器阶段 |
+| --- | --- | --- |
+| Markdown 转换 | 生成正文 HTML | 无需运行 Markdown 解析器 |
+| 分类和分页 | 预生成可访问 URL | 普通链接导航 |
+| 全文搜索 | Pagefind 生成索引 | 按需加载搜索模块 |
+| 代码复制 | 输出代码文本 | 使用 Clipboard API |
+
+文章页没有理由加载首页插画的动画，也没有理由运行一个完整的前端应用。先用语义化 HTML 交付内容，再为具体交互补充少量脚本。
+
+## 一次最小验证
+
+1. 新建文章，并将 `draft` 设为 `true`。
+2. 运行生产构建，确认没有生成该文章的详情路径。
+3. 将草稿设为 `false` 后重新构建。
+4. 检查文章列表和全文搜索。
+
+验证时应使用生产预览，因为搜索索引是在构建后生成的。
+
+## 延伸阅读
+
+- [Astro 内容集合文档](https://docs.astro.build/en/guides/content-collections/)
+- [Pagefind 文档](https://pagefind.app/docs/)
+
+<figure><img src={withBase('/images/og-default.png')} alt="Lyra 博客的酒红色文字封面示例" width="1200" height="630" loading="lazy" /><figcaption>示例图片：为图片预留尺寸，避免正文布局跳动。</figcaption></figure>

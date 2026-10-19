@@ -1,0 +1,14 @@
+---
+import { withBase } from '../lib/paths';
+import type { CollectionEntry } from 'astro:content';
+import { projectHref } from '../lib/content';
+interface Props { project: CollectionEntry<'projects'> }
+const { project } = Astro.props;
+---
+<article class="project-item">
+  {project.data.cover && <a class="project-art" href={projectHref(project)} tabindex="-1" aria-hidden="true"><img src={withBase(project.data.cover)} alt="" width="1000" height="650" loading="lazy" /></a>}
+  <div class="project-meta">{project.data.example && <span>示例项目</span>}<span>{project.data.stack.join(' / ')}</span></div>
+  <h3><a href={projectHref(project)}>{project.data.name} <span aria-hidden="true">↗</span></a></h3>
+  <p>{project.data.description}</p>
+  <div class="project-links">{project.data.source && <a href={project.data.source} target="_blank" rel="noopener noreferrer">源码 ↗</a>}{project.data.demo && <a href={project.data.demo} target="_blank" rel="noopener noreferrer">演示 ↗</a>}<a href={projectHref(project)}>项目说明 →</a></div>
+</article>
