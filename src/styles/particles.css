@@ -1,0 +1,9 @@
+.stage-particles { position: fixed; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; contain: strict; }
+.stage-mote { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); border-radius: 50%; background: #ffe4b3; opacity: .4; box-shadow: 0 0 9px #ffe4b35c; animation: stage-drift var(--duration) var(--delay) ease-in-out infinite alternate; }
+.stage-mote.mote-pink { background: #f2c6ce; box-shadow: 0 0 7px #f2c6ce55; }
+.stage-mote.mote-soft { filter: blur(1px); opacity: .28; }
+@keyframes stage-drift { from { transform: translate3d(0,45px,0); } to { transform: translate3d(var(--drift),-65px,0); } }
+html[data-effects='off'] .stage-particles { display: none; }
+html[data-page-hidden] .stage-mote { animation-play-state: paused; }
+@media(max-width:767px) { .stage-mote:nth-child(n+13) { display: none; } }
+@media(prefers-reduced-motion:reduce) { .stage-particles { display:none; } }

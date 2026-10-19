@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import { withBase } from '../lib/paths';
+const tracks = await getCollection('music', ({ data }) => !data.draft);
+const first = tracks[0];
+---
+<section class="panel home-music" aria-labelledby="music-heading" data-music-player>
+  <div class="home-music-heading">
+    <div class="home-disc" aria-hidden="true">{first?.data.cover ? <img src={withBase(first.data.cover)} width="76" height="76" alt="" /> : <span>♪</span>}</div>
+    <div><p class="dash-label">LISTENING ROOM</p><h2 id="music-heading" data-track-title>{first?.data.title || '留一首歌的位置'}</h2><p data-track-artist>{first?.data.artist || '等待加入你的音乐收藏'}</p></div>
+    <a href={withBase('/music/')} class="dash-arrow" aria-label="查看音乐收藏">↗</a>
+  </div>
+  {first ? <>
+    <audio preload="none" src={withBase(first.data.audio)} aria-label="首页音乐播放器" data-home-audio></audio>
+    <label class="sr-only" for="home-music-seek">播放进度</label><input id="home-music-seek" type="range" min="0" max="100" value="0" step="0.1" disabled />
+    <div class="home-music-times"><span data-current-time>00:00</span><span data-duration>--:--</span></div>
+    <div class="home-music-controls"><button type="button" data-music-prev aria-label="上一首" disabled={tracks.length < 2}>Ⅰ‹</button><button type="button" class="music-play" data-music-play aria-label="播放音乐">▶</button><button type="button" data-music-next aria-label="下一首" disabled={tracks.length < 2}>›Ⅰ</button></div>
+    <p class="home-music-feedback" role="status" data-music-feedback></p>
+    <script type="application/json" data-music-tracks set:html={JSON.stringify(tracks.map(track => ({title:track.data.title,artist:track.data.artist,audio:withBase(track.data.audio),cover:track.data.cover ? withBase(track.data.cover) : null}))).replace(/</g,'\\u003c')} />
+    <noscript><audio controls preload="none" src={withBase(first.data.audio)} aria-label={`播放 ${first.data.title}`}></audio></noscript>
+  </> : <div class="music-empty"><span class="music-empty-line" aria-hidden="true"></span><span class="music-empty-note">尚未添加歌曲 · 手动播放</span><a href={withBase('/music/')} class="music-empty-link">前往音乐收藏 <span aria-hidden="true">→</span></a></div>}
+</section>
+<script>import '../scripts/home-music';</script>

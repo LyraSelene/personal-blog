@@ -15,4 +15,5 @@ export const site = {
   ],
   // Add only your real public profiles, e.g. { label: 'GitHub', href: 'https://github.com/your-name' }.
   socials: profile.socials as { label: string; href: string }[],
+  friends: profile.friends as { name: string; href: string; description: string }[],
 };

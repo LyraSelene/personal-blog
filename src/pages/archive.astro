@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publishedPosts,postHref,dateLabel } from '../lib/content';
+import { withBase } from '../lib/paths';
+const posts=await publishedPosts();
+const years=[...new Set(posts.map(post=>post.data.pubDate.getUTCFullYear()))];
+---
+<BaseLayout portal title="文章归档"><div class="portal-shell collection-shell"><header class="collection-heading"><p class="eyebrow">THROUGH THE PAGES</p><h1>文章归档</h1><p>沿时间，重新翻阅。共 {posts.length} 篇公开文章。</p></header>{posts.length ? <div class="panel archive-timeline">{years.map(year=><section aria-labelledby={`year-${year}`}><h2 id={`year-${year}`}>{year}</h2><ol>{posts.filter(post=>post.data.pubDate.getUTCFullYear()===year).map(post=><li><time datetime={post.data.pubDate.toISOString()}>{dateLabel(post.data.pubDate).slice(5)}</time><a href={postHref(post)}>{post.data.title}</a><span>{post.data.category}</span></li>)}</ol></section>)}</div> : <section class="panel collection-empty"><span aria-hidden="true">≡</span><h2>时间线，留待第一篇记录。</h2><p>暂时还没有公开文章。</p><a href={withBase('/articles/')} class="empty-browse-link">浏览文章 →</a></section>}</div></BaseLayout>

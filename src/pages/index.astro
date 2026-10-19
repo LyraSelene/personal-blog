@@ -1,27 +1,59 @@
 ---
+import { getCollection } from 'astro:content';
 import { withBase } from '../lib/paths';
+import { publishedPosts, publishedProjects, dateLabel, postHref, projectHref } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeMusic from '../components/HomeMusic.astro';
 import { site } from '../config/site';
 import { visuals } from '../config/visuals';
+const [posts,projects,albums,moments] = await Promise.all([
+  publishedPosts(),publishedProjects(),
+  getCollection('albums',({data})=>!data.draft),getCollection('moments',({data})=>!data.draft),
+]);
+const latest = posts[0];
+const project = projects.find(item=>item.data.featured) || projects[0];
+const album = albums.sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf())[0];
+const moment = moments.sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf())[0];
+const momentText = moment?.body?.replace(/<[^>]*>/g,'').replace(/[#*`>\[\]]/g,'').trim().slice(0,88);
+const cover = latest?.data.cover || visuals.character;
+const albumCover = album?.data.cover || album?.data.photos[0]?.src;
+const updated = new Date().toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'});
 ---
 <BaseLayout portal home>
-  <div class="portal-shell home-landing-shell">
-    <section class="home-landing" aria-labelledby="hero-title">
-      <div class="home-profile panel">
-        <p class="eyebrow">PERSONAL NOTEBOOK</p>
-        <h1 id="hero-title">{site.name}</h1>
-        <p class="home-author">{site.author}</p>
-        <p class="home-description">{site.description}</p>
-        <nav class="home-actions" aria-label="快速入口">
-          <a href={withBase('/articles/')}>文章 <span aria-hidden="true">↗</span></a>
-          <a href={withBase('/projects/')}>项目 <span aria-hidden="true">↗</span></a>
-          <a href={withBase('/about/')}>关于 <span aria-hidden="true">↗</span></a>
-        </nav>
-      </div>
-      <div class="home-character panel">
-        {visuals.character ? <img src={withBase(visuals.character)} alt={visuals.characterAlt} width="1440" height="740" fetchpriority="high" /> : <span class="art-word" aria-hidden="true">Lyra</span>}
-        <span class="art-signature" aria-hidden="true">{site.author}</span>
-      </div>
-    </section>
+  <div class="portal-shell dashboard-shell">
+    <form class="dashboard-search panel" role="search" action={withBase('/search/')}>
+      <label for="home-search" class="sr-only">搜索文章正文</label><span aria-hidden="true">⌕</span>
+      <input id="home-search" name="q" type="search" placeholder="搜索文章，找回某个想法…" required autocomplete="off" />
+      <button type="submit" aria-label="提交搜索">↵</button>
+    </form>
+    <div class="dashboard-top">
+      <section class="panel dashboard-profile" aria-labelledby="hero-title">
+        <div class="dashboard-identity">
+          <a href={withBase('/about/')} class="dashboard-avatar" aria-label={`关于 ${site.author}`}>{visuals.character ? <img src={withBase(visuals.character)} alt="" width="84" height="84" /> : <span>L</span>}</a>
+          <div><p class="dash-label">PERSONAL NOTEBOOK</p><h1 id="hero-title">{site.name}</h1><p class="dashboard-author">{site.author}</p></div>
+        </div>
+        <p class="dashboard-bio">{site.description}</p>
+        <div class="dashboard-profile-bottom"><nav class="dashboard-counts" aria-label="内容统计"><a href={withBase('/articles/')}><strong>{posts.length}</strong><span>文章</span></a><a href={withBase('/projects/')}><strong>{projects.length}</strong><span>项目</span></a><a href={withBase('/albums/')}><strong>{albums.length}</strong><span>相册</span></a></nav><a class="dashboard-about" href={withBase('/about/')}>关于我 <span aria-hidden="true">↗</span></a></div>
+      </section>
+      <HomeMusic />
+    </div>
+    <aside class="dashboard-notice" aria-label="公告"><span class="notice-marker" aria-hidden="true">✦</span><p>{site.announcement}</p><a href={withBase('/moments/')} aria-label="查看说说">↗</a></aside>
+    <div class="dashboard-grid">
+      <article class:list={['panel dashboard-feature',{'has-cover':!!cover}]}>
+        {cover && <img class="dashboard-feature-image" src={withBase(cover)} width="800" height="1000" alt={latest?.data.cover ? '' : visuals.characterAlt} fetchpriority="high" />}
+        <div class="dashboard-feature-copy"><span class="dash-pill">{latest ? 'LATEST ARTICLE' : 'LEARNING NOTES'}</span>{latest ? <><time datetime={latest.data.pubDate.toISOString()}>{dateLabel(latest.data.pubDate)}</time><h2><a href={postHref(latest)}>{latest.data.title}</a></h2><p>{latest.data.description}</p><a class="dash-inline-link" href={postHref(latest)}>阅读全文 <span aria-hidden="true">↗</span></a></> : <><h2>下一篇，<br />从好奇开始。</h2><p>暂时还没有公开文章。</p><a class="dash-inline-link" href={withBase('/articles/')}>进入文章 <span aria-hidden="true">↗</span></a></>}</div>
+      </article>
+      <section class:list={['panel dashboard-project',{'project-with-cover':!!project?.data.cover}]} aria-labelledby="project-heading">
+        {project?.data.cover && <img class="dashboard-project-image" src={withBase(project.data.cover)} width="1000" height="450" alt="" loading="lazy" />}
+        <div class="dashboard-project-copy"><div class="dash-section-top"><p class="dash-label">PROJECT / PRACTICE</p><a href={withBase('/projects/')} aria-label="全部项目">↗</a></div><h2 id="project-heading"><a href={project ? projectHref(project) : withBase('/projects/')}>{project?.data.name || '让想法，慢慢成形。'}</a></h2><p>{project?.data.description || '项目实践将在这里更新。'}</p>{project && <div class="dash-tags">{project.data.stack.slice(0,4).map(item=><span>{item}</span>)}</div>}</div>
+      </section>
+      <section class="panel dashboard-moment" aria-labelledby="moment-heading"><div class="dash-section-top"><p class="dash-label">LITTLE MOMENTS</p><a href={withBase('/moments/')} aria-label="全部说说">↗</a></div><h2 id="moment-heading">{moment ? '此刻的想法' : '长文之外，几句日常。'}</h2><p>{momentText || '暂时还没有公开说说。'}</p>{moment && <time datetime={moment.data.date.toISOString()}>{dateLabel(moment.data.date)}</time>}</section>
+      <section class="panel dashboard-appearance" aria-labelledby="appearance-heading"><span class="theme-orbit" aria-hidden="true"><span></span></span><h2 id="appearance-heading">阅读氛围</h2><button type="button" data-dashboard-theme hidden>切换主题</button><p data-theme-caption>跟随系统</p></section>
+      <section class="panel dashboard-album" aria-labelledby="album-heading"><div class:list={['dashboard-album-preview',{'is-empty':!albumCover}]} aria-hidden="true">{albumCover ? <img src={withBase(albumCover)} width="240" height="180" alt="" loading="lazy" /> : <span>▧</span>}</div><div><p class="dash-label">LIGHT & MEMORY</p><h2 id="album-heading"><a href={withBase(album ? `/albums/${album.id}/` : '/albums/')}>{album?.data.title || '相册 · 光影收藏'}</a></h2><p>{album ? `${album.data.photos.length} 张照片 · ${album.data.description || dateLabel(album.data.date)}` : '等待下一次按下快门。'}</p></div><a class="dash-arrow" href={withBase('/albums/')} aria-label="全部相册">↗</a></section>
+      <a class="panel dashboard-archive" href={withBase('/archive/')}><span aria-hidden="true">≡</span><strong>文章归档</strong><small>沿时间，重新翻阅</small></a>
+    </div>
+    <div class="panel dashboard-status"><time class="dashboard-clock" data-live-clock aria-label="北京时间">--:--:--</time><span class="dashboard-site-state"><i aria-hidden="true"></i>静态手记 · 持续记录</span><div class="dashboard-stack"><span>Astro</span><span>MDX</span><span>Tailwind 4</span></div><span class="dashboard-updated">更新于 {updated}</span></div>
+    <div class="dashboard-utilities">{visuals.particles && <button type="button" data-particles-toggle aria-pressed="true" hidden>舞台浮尘 · 开</button>}<a href={withBase('/links/')}>友情链接 ↗</a></div>
   </div>
 </BaseLayout>
+<script>import '../scripts/dashboard';</script>

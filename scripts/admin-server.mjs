@@ -49,7 +49,9 @@ async function payload(req, limit = 12 * 1024 * 1024) {
 const publicProfile = data => {
   for (const key of ['name', 'author', 'description', 'about']) if (typeof data[key] !== 'string' || !data[key].trim() || data[key].length > 10000) fail(`请正确填写 ${key}`);
   if (!Array.isArray(data.socials) || data.socials.length > 12 || data.socials.some(v => !v.label || !/^https:\/\//.test(v.href))) fail('社交链接请使用 HTTPS 地址。');
-  return Object.fromEntries(['name', 'author', 'description', 'about', 'socials'].map(key => [key, data[key]]));
+  if (typeof data.announcement !== 'string' || data.announcement.length > 240) fail('首页公告最多 240 字。');
+  if (!Array.isArray(data.friends) || data.friends.length > 30 || data.friends.some(v => typeof v.name !== 'string' || !v.name.trim() || typeof v.description !== 'string' || !/^https:\/\//.test(v.href))) fail('友链请填写名称、简介与 HTTPS 地址。');
+  return Object.fromEntries(['name', 'author', 'description', 'about', 'socials', 'announcement', 'friends'].map(key => [key, data[key]]));
 };
 async function runCommand(binary, args, env = {}) {
   const result = await exec(binary, args, { cwd: root, env: { ...process.env, ...env }, timeout: 240000, maxBuffer: 4 * 1024 * 1024, windowsHide: true });

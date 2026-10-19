@@ -6,4 +6,5 @@ export const visuals = {
   character: '/images/sakiko.webp' as string | null,
   characterAlt: '丰川祥子，蓝发金色眼睛的角色插画',
   ogImage: '/images/og-default.png',
+  particles: true,
 };

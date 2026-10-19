@@ -1,0 +1,4 @@
+---
+const particles = Array.from({length:28},(_,i)=>({left:(i*37+11)%100,top:(i*23+7)%100,size:i%6===0?5:2+i%3,duration:20+i%7*4,delay:-(i*13)%47,drift:(i%2?-1:1)*(20+i%5*10)}));
+---
+<div class="stage-particles" aria-hidden="true">{particles.map((particle,i)=><span class:list={['stage-mote',{'mote-pink':i%4===0,'mote-soft':i%6===0}]} style={`--x:${particle.left}%;--y:${particle.top}%;--size:${particle.size}px;--duration:${particle.duration}s;--delay:${particle.delay}s;--drift:${particle.drift}px;`} />)}</div>

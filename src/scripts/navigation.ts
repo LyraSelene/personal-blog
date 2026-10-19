@@ -32,4 +32,15 @@ if (themeButton) {
     apply(next);
   });
   media.addEventListener('change', () => { if (root.dataset.preference === 'system') apply('system'); });
+  new MutationObserver(() => {
+    const preference = root.dataset.preference || 'system';
+    const label = labels[preference] || labels.system;
+    if (themeButton.textContent !== label) {
+      themeButton.textContent = label;
+      themeButton.setAttribute('aria-label', `切换主题，当前${label}，点击切换为${labels[preference === 'system' ? 'light' : preference === 'light' ? 'dark' : 'system']}`);
+    }
+  }).observe(root, { attributes: true, attributeFilter: ['data-preference'] });
 }
+const updateVisibility = () => document.documentElement.toggleAttribute('data-page-hidden', document.hidden);
+document.addEventListener('visibilitychange', updateVisibility);
+updateVisibility();

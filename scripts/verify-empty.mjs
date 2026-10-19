@@ -8,7 +8,7 @@ const browser = await chromium.launch({ channel: 'chrome', headless: true });
 try {
   const page = await browser.newPage();
   const base = `http://127.0.0.1:4324${process.env.SITE_BASE_PATH || '/'}`;
-  for (const route of ['', 'articles/', 'projects/', 'albums/', 'music/', 'moments/', 'about/', 'search/']) {
+  for (const route of ['', 'articles/', 'projects/', 'albums/', 'music/', 'moments/', 'archive/', 'links/', 'about/', 'search/']) {
     const response = await page.goto(base + route);
     assert.equal(response.status(), 200);
     assert.equal(await page.locator('h1').isVisible(), true);

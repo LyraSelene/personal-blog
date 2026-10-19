@@ -70,12 +70,32 @@ test('mobile menu keyboard, theme persistence and system preference', async ({ p
   await page.locator('.toc summary').click(); await expect(page.getByRole('navigation', { name: '本文目录' })).toBeVisible();
 });
 
-test('simple home and archive layout switch work', async ({ page }) => {
+test('dashboard search, themes, particles and archive layout switch work', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.home-character img')).toBeVisible();
+  await expect(page.locator('.dashboard-feature-image')).toBeVisible();
   await expect(page.locator('.post-item')).toHaveCount(0);
-  await page.goto('/search/?q=词法环境');
+  await page.getByRole('searchbox', { name:'搜索文章正文' }).fill('词法环境');
+  await page.getByRole('button', { name:'提交搜索' }).click();
   await expect(page.locator('#search-results')).toContainText('重新理解闭包');
+  await page.goto('/');
+  await expect(page.locator('.dashboard-counts a').first()).toContainText('5');
+  await expect(page.locator('.dashboard-clock')).toHaveText(/\d{2}:\d{2}:\d{2}/);
+  await expect(page.locator('[data-home-audio]')).not.toHaveAttribute('autoplay');
+  await page.emulateMedia({ reducedMotion:'no-preference' });
+  const effects=page.getByRole('button',{name:'舞台浮尘 · 开',exact:true});
+  await effects.click();
+  await expect(page.locator('html')).toHaveAttribute('data-effects','off');
+  await expect(page.locator('.stage-particles')).not.toBeVisible();
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-effects','off');
+  await page.getByRole('button',{name:'舞台浮尘 · 关',exact:true}).click();
+  await expect(page.locator('.stage-particles')).toBeVisible();
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect(page.locator('.stage-particles')).not.toBeVisible();
+  await page.locator('[data-dashboard-theme]').click();
+  await expect(page.locator('[data-theme-caption]')).toHaveText(/浅色模式|深色模式/);
+  await page.getByRole('link',{name:'文章归档 沿时间，重新翻阅'}).click();
+  await expect(page.locator('.archive-timeline li')).toHaveCount(5);
   await page.goto('/articles/');
   await page.getByRole('button', { name: '列表', exact: true }).click();
   await expect(page.locator('.archive-cards')).toHaveAttribute('data-view', 'list');
@@ -94,13 +114,36 @@ test('albums, music and moments expose usable content controls', async ({ page }
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await expect(page.getByRole('button', { name: '放大查看：舞台角色图' })).toBeFocused();
   await page.goto('/music/');
-  await expect(page.locator('audio')).toHaveAttribute('controls', '');
-  await expect(page.locator('audio')).not.toHaveAttribute('autoplay');
+  await expect(page.locator('audio').first()).toHaveAttribute('controls', '');
+  await expect(page.locator('audio').first()).not.toHaveAttribute('autoplay');
   await page.getByText('歌词', { exact: true }).click();
   await expect(page.locator('.lyrics pre')).toContainText('这是测试歌词');
   await page.goto('/moments/');
   await expect(page.locator('.moment-item')).toHaveCount(1);
   await expect(page.locator('.moment-item')).toContainText('今天完成了一个小实验');
+});
+
+test('homepage music plays, pauses, seeks and switches tracks', async ({page})=>{
+  const bytes=Buffer.alloc(44+16000*10);bytes.write('RIFF');bytes.writeUInt32LE(bytes.length-8,4);bytes.write('WAVEfmt ',8);bytes.writeUInt32LE(16,16);bytes.writeUInt16LE(1,20);bytes.writeUInt16LE(1,22);bytes.writeUInt32LE(8000,24);bytes.writeUInt32LE(16000,28);bytes.writeUInt16LE(2,32);bytes.writeUInt16LE(16,34);bytes.write('data',36);bytes.writeUInt32LE(bytes.length-44,40);
+  await page.route('https://example.com/*.mp3',route=>{
+    const range=route.request().headers().range;
+    if(range){const start=Number(/bytes=(\d+)/.exec(range)?.[1]||0);return route.fulfill({status:206,contentType:'audio/wav',headers:{'accept-ranges':'bytes','content-range':`bytes ${start}-${bytes.length-1}/${bytes.length}`},body:bytes.subarray(start)});}
+    return route.fulfill({contentType:'audio/wav',headers:{'accept-ranges':'bytes'},body:bytes});
+  });
+  await page.goto('/');
+  const audio=page.locator('[data-home-audio]');
+  await expect(audio).not.toHaveAttribute('autoplay');
+  await page.getByRole('button',{name:'播放音乐',exact:true}).click();
+  await expect(page.getByRole('button',{name:'暂停音乐',exact:true})).toBeVisible();
+  await expect(page.locator('#home-music-seek')).toBeEnabled();
+  await page.locator('#home-music-seek').fill('50');
+  await page.waitForFunction(() => (document.querySelector('[data-home-audio]') as HTMLAudioElement)?.currentTime > 4);
+  expect(await audio.evaluate((element:HTMLAudioElement)=>element.currentTime)).toBeGreaterThan(4);
+  const previous=await page.locator('[data-track-title]').textContent();
+  await page.getByRole('button',{name:'下一首',exact:true}).click();
+  await expect(page.locator('[data-track-title]')).not.toHaveText(previous!);
+  await page.getByRole('button',{name:'暂停音乐',exact:true}).click();
+  expect(await audio.evaluate((element:HTMLAudioElement)=>element.paused)).toBe(true);
 });
 
 test('desktop and mobile layout, both themes, accessibility and screenshots', async ({ page }) => {
@@ -110,7 +153,7 @@ test('desktop and mobile layout, both themes, accessibility and screenshots', as
     await page.setViewportSize({ width, height: width > 767 ? 1000 : 844 });
     for (const theme of ['dark', 'light']) {
       await page.addInitScript(value => localStorage.setItem('lyra-theme', value), theme);
-      for (const route of ['/', '/articles/', '/articles/astro-static-notes/', '/projects/', '/albums/', '/albums/stage-notes/', '/music/', '/moments/', '/about/', '/search/', '/404/']) {
+      for (const route of ['/', '/articles/', '/articles/astro-static-notes/', '/projects/', '/albums/', '/albums/stage-notes/', '/music/', '/moments/', '/archive/', '/links/', '/about/', '/search/', '/404/']) {
         await page.goto(route); await page.evaluate(() => document.fonts.ready);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${route} ${width} ${theme}`).toBe(true);
         const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
